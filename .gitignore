@@ -1,0 +1,7 @@
+# Ignore files for a macOS project
+*.pbxproj
+*.xcworkspacedata
+*.xcuserstate
+*.xcscheme
+*.plist
+*.DS_Store
