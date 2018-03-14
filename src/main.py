@@ -1,4 +1,3 @@
-from scapy3k.all import *
-
-for i in range(1, 10):
-    print("Hello world")
+from scapy.all import *
+input = input("Choose your preferred attack\n1. Discovery\n2.Stuff\n")
+print(input)
