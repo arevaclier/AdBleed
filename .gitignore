@@ -7,3 +7,6 @@
 *.DS_Store
 *.xcbkptlist
 *.xcsettings
+
+# Ignore __pycache__ folder
+src/__pycache__
