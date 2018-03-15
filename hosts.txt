@@ -1,0 +1,6 @@
+# Contains domains of known ad servers, used to determine if a Pi-hole is active on the network
+
+googleads.g.doubleclick.net
+tue.nl
+
+
