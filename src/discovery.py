@@ -1,5 +1,6 @@
 from os.path import *
 from scapy.all import *
+import signal
 
 class Discovery:
     'Discovery class handles automatic discovery of Pi-hole.'
@@ -30,24 +31,34 @@ class Discovery:
         ips = []
         dns = self.getDNS()
         maxIP = []
+        # Set up timer to timeout DNS requests
+        signal.signal(signal.SIGALRM, Discovery.timeoutHandler)
         
+        print("Evaluating DNS requests...")
         for server in dns:
             for url in Discovery.__hosts:
-                answer = sr1(IP(dst=server)/UDP(dport=53)/DNS(rd=1,qd=DNSQR(qname=url)),verbose=0)
-                ips.append(answer[DNS].an[answer[DNS].ancount-1].rdata) # Only save the IP
+                try:
+                    signal.setitimer(signal.ITIMER_REAL, 0.001) # Set a timer of 1ms
+                    answer = sr1(IP(dst=server)/UDP(dport=53)/DNS(rd=1,qd=DNSQR(qname=url)),verbose=0)
+                    singal.setitimer(signal.ITIMER_REAL, 0) # Reset the timer if we get a response
+                    ips.append(answer[DNS].an[answer[DNS].ancount-1].rdata) # Only save the IP
+                except TimeoutException:
+                    ips.append("0.0.0.0")
+                    continue
             # Save the most frequent ip for every DNS server
             mostFreqElement = max(set(ips), key=ips.count)
             maxIP.append([mostFreqElement, ips.count(mostFreqElement)])
             ips = []
+        print("Done")
     
         # Select the most frequent element of max
         maxFreq = 0
         piIP = None
         for ip in maxIP:
-            if maxFreq < maxIP[1]:
-                piIP = maxIP[0]
-                maxFreq = maxIP[1]
-        
+            if maxFreq < ip[1] and ip[0] != "0.0.0.0":
+                piIP = ip[0]
+                maxFreq = ip[1]
+
         if maxFreq/len(dns) > 0.75 :
             return piIP
         else :
@@ -63,5 +74,11 @@ class Discovery:
                 if line.strip().startswith("nameserver "):
                     servers.append(line.strip().split(" ")[1])
         return servers
+                    
+    def timeoutHandler(signum, frame):
+        raise TimeoutException("No response from server")
 
+    pass
+
+class TimeoutException(Exception):
     pass
