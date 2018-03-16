@@ -34,8 +34,7 @@ class Discovery:
         for server in dns:
             for url in Discovery.__hosts:
                 answer = sr1(IP(dst=server)/UDP(dport=53)/DNS(rd=1,qd=DNSQR(qname=url)),verbose=0)
-                ips.append(answer[DNS].summary())
-                # Possibly needs some formatting
+                ips.append(answer[DNS].an[answer[DNS].ancount-1].rdata) # Only save the IP
             # Save the most frequent ip for every DNS server
             mostFreqElement = max(set(ips), key=ips.count)
             maxIP.append([mostFreqElement, ips.count(mostFreqElement)])
