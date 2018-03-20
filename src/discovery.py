@@ -1,6 +1,7 @@
 from os.path import *
 from scapy.all import *
 import signal
+from TimeoutException import TimeoutException
 
 class Discovery:
     'Discovery class handles automatic discovery of Pi-hole.'
