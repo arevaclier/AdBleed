@@ -79,6 +79,3 @@ class Discovery:
         raise TimeoutException("No response from server")
 
     pass
-
-class TimeoutException(Exception):
-    pass
