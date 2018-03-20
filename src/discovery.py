@@ -41,7 +41,7 @@ class Discovery:
                 try:
                     signal.setitimer(signal.ITIMER_REAL, 0.001) # Set a timer of 1ms
                     answer = sr1(IP(dst=server)/UDP(dport=53)/DNS(rd=1,qd=DNSQR(qname=url)),verbose=0)
-                    singal.setitimer(signal.ITIMER_REAL, 0) # Reset the timer if we get a response
+                    signal.setitimer(signal.ITIMER_REAL, 0) # Reset the timer if we get a response
                     ips.append(answer[DNS].an[answer[DNS].ancount-1].rdata) # Only save the IP
                 except TimeoutException:
                     ips.append("0.0.0.0")
