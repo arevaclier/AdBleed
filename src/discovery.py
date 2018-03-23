@@ -1,4 +1,4 @@
-from os.path import *
+import os
 from scapy.all import *
 import signal
 from TimeoutException import TimeoutException
@@ -9,7 +9,7 @@ class Discovery:
     
     def __init__(self):
         # Open host file
-        fileName = join(dirname(__file__), "../hosts.txt")
+        fileName = os.path.dirname(__file__) + "/../hosts.txt"
         # Strip comments from the file and store result in __hosts separated by \n
         cleanHosts = ""
         with open(fileName, "r") as file:

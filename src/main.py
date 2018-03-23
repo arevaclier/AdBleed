@@ -1,14 +1,14 @@
-from scapy.all import *
-from dns import Dns
-from discovery import Discovery
+import configuration
+import CLI
 
-disco = Discovery()
+# Run the program
+CLI.mainCLI()
 
-input = input("Choose your preferred attack\n1. Manual attack\n2. Configure automatic attack\n")
-print(input)
+#disco = Discovery()
+#PiIP = disco.getPi()
 
-PiIP = disco.getPi()
-resultIP = "123.45.67.89" # To be set by user
+#dns = Dns(piIP, getReplaceIP())
+#dns.spoofer(0)
 
-dns = Dns(piIP, resultIP)
-dns.spoofer(0)
+
+
