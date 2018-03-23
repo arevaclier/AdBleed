@@ -1,7 +1,9 @@
 # AdBleed
 
 ## Description
-AdBleed is an attack for a [Pi-hole](https://github.com/pi-hole/pi-hole). It can detect a Pi-hole on the network and automatically replace DNS requests sent back from the Pi-hole.
+AdBleed is an attack for a [Pi-hole](https://github.com/pi-hole/pi-hole). It can detect a Pi-hole on the network and automatically replace DNS requests sent back from the Pi-hole. This project uses Python 3 and [Scapy for Python 3](https://github.com/phaethon/scapy) to implement the network interaction.
+
+AdBleed is intended to run on a Raspberry Pi (but will likely also work on other Linux machines). Together with the [automation](#automate), this makes a small device that can be plugged in independently to interfere with the Pi-hole.
 
 ## Table of Contents
 - [Installation](#installation)  
@@ -9,8 +11,8 @@ AdBleed is an attack for a [Pi-hole](https://github.com/pi-hole/pi-hole). It can
   - [Discovery](#discovery)
   - [ARP Poisoning](#arp-poisoning)
   - [DNS Poisoning](#dns-poisoning)
-  - [Automate](%automate)
-  - [Settings](%settings)
+  - [Automate](#automate)
+  - [Settings](#settings)
 - [License](#license)
 
 ## Installation
@@ -34,11 +36,13 @@ Since the Pi-hole returns its own IP address for every ad DNS request, AdBleed w
 To Do
 
 ### DNS Poisoning
-DNS poisoning of the Pi-hole has several types. It can alter all responses, only the ad responses or alter nothing. Furthermore, the user can choose to replace the IP addresses in the DNS responses with a fixed IP address, its own IP address or a random IP address. 
+DNS poisoning of the Pi-hole has several types. It can alter all responses or only the ad responses. Furthermore, the user can choose to replace the IP addresses in the DNS responses with a fixed IP address, its own IP address or a random IP address.
 
 ### Automate
+Once set up, it is possible to set up AdBleed in automatic mode. This means it is started once the machine is booted and will automatically do the steps above according to the settings.
 
 ### Settings
+AdBleed gives the user a range of settings to alter. The CLI offers an interface to change the settings, however it is also possible to change `AdBleed.conf`  by hand.
 
 ## License
 **MIT License**
