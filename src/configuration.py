@@ -10,6 +10,7 @@ class Configuration:
     noOfHosts = ("Discovery", "NumberOfHosts")
     poisonType = ("Poisoning", "PoisonType")
     replaceIP = ("Poisoning", "ReplaceIP")
+    spoofTimeout = ("Poisoning", "SpoofingTimeout")
 
     def __init__(self):
         self.path = os.path.dirname(__file__) + "/../AdBleed.conf"
@@ -56,6 +57,12 @@ class Configuration:
 
     def getNumberOfHosts(self):
         return int(self.getConf(self.noOfHosts[0], self.noOfHosts[1]))
+    
+    def setSpoofingTimeout(self, value):
+        self.setConf(self.spoofTimeout[0], self.spoofTimeout[1], str.encode(value))
+    
+    def getSpoofingTimeout(self):
+        return int(self.getConf(self.spoofTimeout[0], self.spoofTimeout[1]))
 
     pass
 

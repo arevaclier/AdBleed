@@ -6,8 +6,12 @@ from TimeoutException import TimeoutException
 class Discovery:
     'Discovery class handles automatic discovery of Pi-hole.'
     __hosts = []
+    nHosts = 0
+    similarResp = 1.0
     
-    def __init__(self):
+    def __init__(self, numberOfHosts, similarResponses):
+        self.nHosts = numberOfHosts
+        self.similarResp = similarResponses/100
         # Open host file
         fileName = os.path.dirname(__file__) + "/../hosts.txt"
         # Strip comments from the file and store result in __hosts separated by \n
@@ -28,7 +32,7 @@ class Discovery:
     # The most frequent IP of each DNS server is saved and the overall most frequent IP is selected.
     # If the relative frequency of that IP was more than 75% of the __hosts, it is returned.
     # Otherwise None is returned.
-    def getPi(self):
+    def getPi(self, timeout):
         ips = []
         dns = self.getDNS()
         maxIP = []
@@ -39,7 +43,7 @@ class Discovery:
         for server in dns:
             for url in Discovery.__hosts:
                 try:
-                    signal.setitimer(signal.ITIMER_REAL, 0.001) # Set a timer of 1ms
+                    signal.setitimer(signal.ITIMER_REAL, timeout/1000) # Set a timer
                     answer = sr1(IP(dst=server)/UDP(dport=53)/DNS(rd=1,qd=DNSQR(qname=url)),verbose=0)
                     signal.setitimer(signal.ITIMER_REAL, 0) # Reset the timer if we get a response
                     ips.append(answer[DNS].an[answer[DNS].ancount-1].rdata) # Only save the IP
@@ -60,7 +64,7 @@ class Discovery:
                 piIP = ip[0]
                 maxFreq = ip[1]
 
-        if maxFreq/len(dns) > 0.75 :
+        if maxFreq/len(dns) > self.similarResp :
             return piIP
         else :
             return None

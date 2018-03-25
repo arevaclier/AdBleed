@@ -12,7 +12,7 @@ mainText = "Enter the number of the method you want to use:\n\
     6. Exit\n"
 
 conf = Configuration()
-disc = Discovery()
+disc = Discovery(conf.getNumberOfHosts(), conf.getSimilarResponses())
 dns = None
 PiIP = ""
 ARPresult = True
@@ -46,7 +46,7 @@ def discoveryCLI():
     
     if inp.lower().strip() == "y" or inp.lower().strip() == "yes" or len(inp.strip()) == 0:
         print("\n")
-        PiIP = disc.getPi()
+        PiIP = disc.getPi(conf.getDNSQueryTimeout)
         if not PiIP == None:
             print("Pi-hole was found at " + PiIP + "\nYou can continue with ARP-Poisoning")
         else:
@@ -99,9 +99,9 @@ def DNSCLI():
         # Ask if we should run in verbose mode
         verbose = input("Do you want to run in verbose mode? (Y/n): ")
         if verbose.lower().strip() == "y" or verbose.lower().strip() == "yes" or len(verbose.strip()) == 0:
-            dns = Dns(PiIP, conf.getReplaceIP(), True)
+            dns = Dns(PiIP, conf.getReplaceIP(), conf.getPoisonType(), True)
         else:
-            dns = Dns(PiIP, conf.getReplaceIP(), False)
+            dns = Dns(PiIP, conf.getReplaceIP(), conf.getPoisonType(), False)
         print("\n")
         # Start spoofing
         dns.spoofer(conf.getSpoofingTimeout())
