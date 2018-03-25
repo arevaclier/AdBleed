@@ -12,6 +12,10 @@ mainText = "Enter the number of the method you want to use:\n\
     6. Exit\n"
 
 conf = Configuration()
+disc = Discovery()
+dns = None
+PiIP = ""
+ARPresult = True
 
 def mainCLI():
     while True:
@@ -19,11 +23,11 @@ def mainCLI():
         if inp.lower().strip() == "1": # Discovery
             discoveryCLI()
         elif inp.lower().strip() == "2": # ARP Poisoning
-            continue
+            ARPCLI()
         elif inp.lower().strip() == "3": # DNS Poisoning
-            continue
+            DNSCLI()
         elif inp.lower().strip() == "4": # Set-up automatic attack
-            continue
+            automaticCLI()
         elif inp.lower().strip() == "5": # Change settings
             settingsCLI()
         elif inp.lower().strip() == "6": # Exit
@@ -31,19 +35,104 @@ def mainCLI():
         else: # Error
             print("Please only enter a number 1-6\n")
 
+# =========================== Discovery ==============================
+
 def discoveryCLI():
     print("You are about to search for the Pi-hole with settings: ")
-    #todo insert settings
+    print("   DnsQueryTimeout:  {} ms".format(conf.getDNSQueryTimeout()))
+    print("   SimilarResp:      {}%".format(conf.getSimilarResponses()))
+    print("   NumberOfHosts:    {}".format(conf.getNumberOfHosts()))
     inp = input("Do you want to continue? (Y/n): ")
     
     if inp.lower().strip() == "y" or inp.lower().strip() == "yes" or len(inp.strip()) == 0:
-        # Start discovery
-        print("Start Pi-hole discovery")
+        print("\n")
+        PiIP = disc.getPi()
+        if not PiIP == None:
+            print("Pi-hole was found at " + PiIP + "\nYou can continue with ARP-Poisoning")
+        else:
+            print("No Pi-hole was found")
+        return
+    elif inp.lower().strip() == "n" or inp.lower().strip() == "no":
         return
     else:
         print("Invalid answer, please answer Y or N\n")
+        discoveryCLI()
         return
 
+# ================================= ARP ====================================
+
+def ARPCLI():
+    if PiIP == "" or PiIP == None:
+        print("IP of the Pi-hole was not set, please run Discovery first.")
+        return
+    print("You are about to initiate ARP poisoning with settings: ")
+    inp = input("Do you want to continue? (Y/n): ")
+
+    if inp.lower().strip() == "y" or inp.lower().strip() == "yes" or len(inp.strip()) == 0:
+        print("\n")
+        # Call ARP method
+        if not ARPresult == True:
+            print("Pi-hole was successfully poisoned")
+        else:
+            print("Poisoning was not successful. Please try again.")
+            return
+    elif inp.lower().strip() == "n" or inp.lower().strip() == "no":
+        return
+    else:
+        print("Invalid answer, please answer Y or N\n")
+        ARPCLI()
+        return
+
+# ================================= DNS ===================================
+
+def DNSCLI():
+    if not ARPresult:
+        print("ARP Poisoning was not completed successfully, please do this first.")
+        return
+    print("You are about to replace DNS responses of the Pi-hole with settings: ")
+    print("   PoisonType:      {}".format(conf.getPoisonType()))
+    print("   ReplaceIP:       {}".format(conf.getReplaceIP()))
+    print("   SpoofingTimeout: {}".format(conf.getSpoofingTimeout()))
+    inp = input("Do you want to continue? (Y/n): ")
+
+    if inp.lower().strip() == "y" or inp.lower().strip() == "yes" or len(inp.strip()) == 0:
+        # Ask if we should run in verbose mode
+        verbose = input("Do you want to run in verbose mode? (Y/n): ")
+        if verbose.lower().strip() == "y" or verbose.lower().strip() == "yes" or len(verbose.strip()) == 0:
+            dns = Dns(PiIP, conf.getReplaceIP(), True)
+        else:
+            dns = Dns(PiIP, conf.getReplaceIP(), False)
+        print("\n")
+        # Start spoofing
+        dns.spoofer(conf.getSpoofingTimeout())
+    elif inp.lower().strip() == "n" or inp.lower().strip() == "no":
+        return
+    else:
+        print("Invalid answer, please answer Y or N\n")
+        DNSCLI()
+        return
+
+# ============================== Automatic ===================================
+
+def automaticCLI():
+    print("You are about to install AdBleed automatic mode for the next reboot.\n\
+This will automatically run the discovery, ARP poisoning and DNS poisoning with the settings in AdBleed.conf.")
+    inp = input("Do you want to continue? (Y/n): ")
+    if inp.lower().strip() == "y" or inp.lower().strip() == "yes" or len(inp.strip()) == 0:
+        print("Installing...")
+        # Execute commands to install service
+        print("Done. AdBleed will be started automatically in the background next boot time.\n\
+To change the settings, rerun this and reboot. To stop AdBleed if it runs in the background:\n\
+    sudo service AdBleed stop\n")
+    elif inp.lower().strip() == "n" or inp.lower().strip() == "no":
+        return
+    else:
+        print("Invalid answer, please answer Y or N\n")
+        automaticCLI()
+        return
+
+# =============================== Settings ==============================
+          
 def settingsCLI():
     print("The settings are currently set as follows:")
     print("1    Discovery: DnsQueryTimeout  ({} ms)".format(conf.getDNSQueryTimeout()))
