@@ -12,7 +12,7 @@ class Dns:
     verbose = False
     poisonType = ""
     
-    def __init__(self, piIP, resultIP, poisonType verbose):
+    def __init__(self, piIP, resultIP, poisonType, verbose):
         self.piIP = piIP
         self.resultIP = resultIP
         self.verbose = verbose

@@ -22,6 +22,7 @@ class Discovery:
                     add = line.strip()
                     if not len(add) == 0 :
                         cleanHosts += add + "\n"
+            file.close()
         # Separate hosts into array of strings per host
         Discovery.__hosts = cleanHosts.split('\n')
         # Remove last line if the file ended with an empty line
@@ -43,7 +44,7 @@ class Discovery:
         for server in dns:
             for url in Discovery.__hosts:
                 try:
-                    signal.setitimer(signal.ITIMER_REAL, timeout/1000) # Set a timer
+                    signal.setitimer(signal.ITIMER_REAL, float(timeout/1000)) # Set a timer
                     answer = sr1(IP(dst=server)/UDP(dport=53)/DNS(rd=1,qd=DNSQR(qname=url)),verbose=0)
                     signal.setitimer(signal.ITIMER_REAL, 0) # Reset the timer if we get a response
                     ips.append(answer[DNS].an[answer[DNS].ancount-1].rdata) # Only save the IP
