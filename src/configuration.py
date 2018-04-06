@@ -42,7 +42,7 @@ class Configuration:
         return self.getConf(self.poisonType[0], self.poisonType[1])
 
     def setReplaceIP(self, value):
-        sel.fsetConf(self.replaceIP[0], self.replaceIP[1], str.encode(value))
+        self.setConf(self.replaceIP[0], self.replaceIP[1], str.encode(value))
 
     def getReplaceIP(self):
         return self.getConf(self.replaceIP[0], self.replaceIP[1])
