@@ -8,6 +8,7 @@ class Configuration:
     dnsQueryTimeout = ("Discovery", "DnsQueryTimeout")
     similarResponses = ("Discovery", "SimilarResp")
     noOfHosts = ("Discovery", "NumberOfHosts")
+    dnsServer = ("Discovery", "DNSServer")
     poisonType = ("Poisoning", "PoisonType")
     replaceIP = ("Poisoning", "ReplaceIP")
     spoofTimeout = ("Poisoning", "SpoofingTimeout")
@@ -64,5 +65,10 @@ class Configuration:
     def getSpoofingTimeout(self):
         return int(self.getConf(self.spoofTimeout[0], self.spoofTimeout[1]))
 
+    def setDNSsetting(self, value):
+        self.setConf(self.dnsServer[0], self.dnsServer[1], str.encode(value))
+    
+    def getDNSsetting(self):
+        return int(self.getConf(self.dnsServer[0], self.dnsServer[1]))
     pass
 

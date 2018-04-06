@@ -138,8 +138,9 @@ def settingsCLI():
     print("1    Discovery: DnsQueryTimeout  ({} ms)".format(conf.getDNSQueryTimeout()))
     print("2    Discovery: SimilarResp      ({}%)".format(conf.getSimilarResponses()))
     print("3    Discovery: NumberOfHosts    ({})".format(conf.getNumberOfHosts()))
-    print("4    Poisoning: PoisonType       ({})".format(conf.getPoisonType()))
-    print("5    Poisoning: ReplaceIP        ({})".format(conf.getReplaceIP()))
+    print("4    Discovery: DNSServer        ({})".format(conf.getDNSsetting()))
+    print("5    Poisoning: PoisonType       ({})".format(conf.getPoisonType()))
+    print("6    Poisoning: ReplaceIP        ({})".format(conf.getReplaceIP()))
     inp = input("\nPlease refer to AdBleed.conf for explanation of the variables. To change a value, enter its number: ")
     var = int(inp)
     if not( int(inp) > 0 and int(inp) < 6):
@@ -154,7 +155,9 @@ def settingsCLI():
         elif var == 3:
             conf.setNumberOfHosts(val)
         elif var == 4:
-            conf.setPoisonType(val)
+            conf.setDNSsetting(val)
         elif var == 5:
+            conf.setPoisonType(val)
+        elif var == 6:
             conf.setReplaceIP(val)
         print("The setting is now set to " + val + "!")
