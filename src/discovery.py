@@ -37,12 +37,13 @@ class Discovery:
     # Otherwise None is returned.
     def getPi(self, timeout, DNSsetting):
         ips = []
+        dns = self.getDNS(DNSsetting)
         maxIP = []
         # Set up timer to timeout DNS requests
         signal.signal(signal.SIGALRM, Discovery.timeoutHandler)
         
         print("Evaluating DNS requests...")
-        for server in self.getDNS(DNSsetting):
+        for server in dns:
             for url in Discovery.__hosts:
                 try:
                     signal.setitimer(signal.ITIMER_REAL, float(timeout/1000)) # Set a timer
@@ -88,8 +89,8 @@ class Discovery:
             answer = nm.scan(DNSsetting.strip(), '53')
             for ip in nm.all_hosts():
                 if answer['scan'][ip]['tcp'][53]['state'] == 'open':
-                    servers.push(ip)
-            print("Found " + len(servers) + " possible servers")
+                    servers.append(ip)
+            print("Found " + str(len(servers)) + " possible servers")
         else:
             print("Incorrect DNSSetting, please update AdBleed.conf.")
         return servers

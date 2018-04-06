@@ -69,6 +69,6 @@ class Configuration:
         self.setConf(self.dnsServer[0], self.dnsServer[1], str.encode(value))
     
     def getDNSsetting(self):
-        return int(self.getConf(self.dnsServer[0], self.dnsServer[1]))
+        return self.getConf(self.dnsServer[0], self.dnsServer[1])
     pass
 
