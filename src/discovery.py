@@ -2,16 +2,18 @@ import os
 from scapy.all import *
 import signal
 from TimeoutException import TimeoutException
+import nmap
 
 class Discovery:
     'Discovery class handles automatic discovery of Pi-hole.'
-    __hosts = []
-    nHosts = 0
+    __hosts = [] # Hosts to check when getPi() is called
+    nHosts = 0 # Number of hosts from __hosts to query
     similarResp = 1.0
     
     def __init__(self, numberOfHosts, similarResponses):
         self.nHosts = numberOfHosts
         self.similarResp = similarResponses/100
+        
         # Open host file
         fileName = os.path.dirname(__file__) + "/../hosts.txt"
         # Strip comments from the file and store result in __hosts separated by \n
@@ -33,15 +35,14 @@ class Discovery:
     # The most frequent IP of each DNS server is saved and the overall most frequent IP is selected.
     # If the relative frequency of that IP was more than 75% of the __hosts, it is returned.
     # Otherwise None is returned.
-    def getPi(self, timeout):
+    def getPi(self, timeout, DNSsetting):
         ips = []
-        dns = self.getDNS()
         maxIP = []
         # Set up timer to timeout DNS requests
         signal.signal(signal.SIGALRM, Discovery.timeoutHandler)
         
         print("Evaluating DNS requests...")
-        for server in dns:
+        for server in self.getDNS(DNSsetting):
             for url in Discovery.__hosts:
                 try:
                     signal.setitimer(signal.ITIMER_REAL, float(timeout/1000)) # Set a timer
@@ -72,13 +73,25 @@ class Discovery:
 
     
     # Returns list of DNS servers from /etc/resolv.conf
-    def getDNS(self):
+    def getDNS(self, DNSsetting):
         servers = []
-        # Todo: only select for the current domain
-        with open("/etc/resolv.conf", "r") as file :
-            for line in file:
-                if line.strip().startswith("nameserver "):
-                    servers.append(line.strip().split(" ")[1])
+        if "resolv.conf" in DNSsetting.strip():
+            # Obtain servers from /etc/resolv.conf
+            with open("/etc/resolv.conf", "r") as file :
+                for line in file:
+                    if line.strip().startswith("nameserver "):
+                        servers.append(line.strip().split(" ")[1])
+        elif len(DNSsetting.strip()) >= 9 and len(DNSsetting.strip()) <= 18: # simple check if it could be an IP
+            # Use nmap to see which have port 53 open
+            print("Scanning for DNS servers in range " + DNSsetting + "...")
+            nm = nmap.PortScanner()
+            answer = nm.scan(DNSsetting.strip(), '53')
+            for ip in nm.all_hosts():
+                if answer['scan'][ip]['tcp'][53]['state'] == 'open':
+                    servers.push(ip)
+            print("Found " + len(servers) + " possible servers")
+        else:
+            print("Incorrect DNSSetting, please update AdBleed.conf.")
         return servers
                     
     def timeoutHandler(signum, frame):

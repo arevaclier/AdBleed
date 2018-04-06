@@ -46,7 +46,7 @@ def discoveryCLI():
     
     if inp.lower().strip() == "y" or inp.lower().strip() == "yes" or len(inp.strip()) == 0:
         print("\n")
-        PiIP = disc.getPi(conf.getDNSQueryTimeout())
+        PiIP = disc.getPi(conf.getDNSQueryTimeout(), conf.getDNSsetting())
         if not PiIP == None:
             print("Pi-hole was found at " + PiIP + "\nYou can continue with ARP-Poisoning")
         else:
