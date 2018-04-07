@@ -12,6 +12,8 @@ class Configuration:
     poisonType = ("Poisoning", "PoisonType")
     replaceIP = ("Poisoning", "ReplaceIP")
     spoofTimeout = ("Poisoning", "SpoofingTimeout")
+    arpTargets = ("Poisoning", "ARPtarget")
+    arpDelay = ("Poisoning", "ARPdelay")
 
     def __init__(self):
         self.path = os.path.dirname(__file__) + "/../AdBleed.conf"
@@ -70,5 +72,10 @@ class Configuration:
     
     def getDNSsetting(self):
         return self.getConf(self.dnsServer[0], self.dnsServer[1])
-    pass
+
+    def getARPtarget(self):
+        return self.getConf(self.arpTargets[0], self.arpTargets[1])
+
+    def getARPdelay(self):
+        return float(self.getConf(self.arpDelay[0], self.arpDelay[1]))
 
