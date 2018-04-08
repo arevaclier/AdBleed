@@ -28,21 +28,23 @@ AdBleed does not require the repository after the installer has been run. To upd
 To start the AdBleed CLI, run `sudo AdBleed`. AdBleed has several modes of operation.
 
 ### Discovery
-This will try to obtain the IP address of the Pi-hole in the network. It does this by querying all DNS servers in `/etc/resolv.conf` for known advertisment servers. AdBleed has a built-in list of ad servers, but also retrieves the latest versions of some of the ad lists used by Pi-hole by default. A few hosts are selected at random to test.
+This will try to obtain the IP address of the Pi-hole in the network. Depending on the setting in `AdBleed.conf`, it can use the DNS servers in `/etc/resolv.conf` or a custom range of IP addresses. If the user has selected a custom range of addresses, [nmap](https://pypi.python.org/pypi/python-nmap) will determine which hosts accept connections on port 53. In both case, all (open) addresses are queried for a number of known advertisment servers (this number can be set by the user). AdBleed has a built-in list of ad servers, but also retrieves the latest versions of some of the ad lists used by Pi-hole by default.
 
-Since the Pi-hole returns its own IP address for every ad DNS request, AdBleed will check the answers of the DNS requests and select the Pi-hole IP if more than a certain percentage of the resulting IPs were equal.
+If a set percentage of responses is the IP address of the DNS server, AdBleed classifies the DNS server as possible Pi-hole. This mechanism is used because a Pi-hole will always return its own IP address if it is queried with a advertisement server. Finally the server with the most equal DNS responses is selected.
 
 ### ARP Poisoning
 To Do
 
 ### DNS Poisoning
-DNS poisoning of the Pi-hole has several types. It can alter all responses or only the ad responses. Furthermore, the user can choose to replace the IP addresses in the DNS responses with a fixed IP address, its own IP address or a random IP address.
+DNS poisoning of the Pi-hole has several types. It can alter all DNS responses or only the responses for requests of ad servers. Furthermore, the user can choose to replace the IP addresses in the DNS responses with a fixed IP address, its own IP address or a random IP address.
+
+AdBleed sniffs all packets and acts on those with the previously determine IP address and source port 53. For these packets, the response IP address may be changed depending on the poisoning setting. All other packets are ignored.
 
 ### Automate
 Once set up, it is possible to set up AdBleed in automatic mode. This means it is started once the machine is booted and will automatically do the steps above according to the settings.
 
 ### Settings
-AdBleed gives the user a range of settings to alter. The CLI offers an interface to change the settings, however it is also possible to change `AdBleed.conf`  by hand.
+AdBleed gives the user a range of settings to alter. The CLI offers an interface to change the settings, however it is also possible to change `AdBleed.conf`  by hand. The latter contains formatting examples and explanations on what the settings change. Therefore, we advise the user to change settings in the configuration file directly.
 
 ## License
 **MIT License**
