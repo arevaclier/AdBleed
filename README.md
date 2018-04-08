@@ -44,7 +44,7 @@ AdBleed sniffs all packets and acts on those with the previously determine IP ad
 Once set up, it is possible to set up AdBleed in automatic mode. This means it is started once the machine is booted and will automatically do the steps above according to the settings.
 
 ### Settings
-AdBleed gives the user a range of settings to alter. The CLI offers an interface to change the settings, however it is also possible to change `AdBleed.conf`  by hand. The latter contains formatting examples and explanations on what the settings change. Therefore, we advise the user to change settings in the configuration file directly.
+AdBleed gives the user a range of settings to alter. It is possible to change the settings in the file `AdBleed.conf`  by hand. This contains formatting examples and explanations on what the settings change.
 
 ## License
 **MIT License**

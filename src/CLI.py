@@ -9,8 +9,7 @@ mainText = "Enter the number of the method you want to use:\n\
     2. ARP Poisoning\n\
     3. DNS Poisoning\n\
     4. Set-up automatic attack\n\
-    5. Change settings\n\
-    6. Exit\n"
+    5. Exit\n"
 
 conf = Configuration()
 disc = Discovery(conf.getNumberOfHosts(), conf.getSimilarResponses())
@@ -31,9 +30,10 @@ def mainCLI():
             DNSCLI()
         elif inp.lower().strip() == "4":  # Set-up automatic attack
             automaticCLI()
-        elif inp.lower().strip() == "5":  # Change settings
-            settingsCLI()
-        elif inp.lower().strip() == "6":  # Exit
+# Remove the option to change settings in CLI, see issue #2
+#        elif inp.lower().strip() == "5":  # Change settings
+#            settingsCLI()
+        elif inp.lower().strip() == "5":  # Exit
             return
         else:  # Error
             print("Please only enter a number 1-6\n")
