@@ -9,7 +9,8 @@ class Discovery:
     __hosts = [] # Hosts to check when getPi() is called
     nHosts = 0 # Number of hosts from __hosts to query
     similarResp = 1.0
-    
+
+
     def __init__(self, numberOfHosts, similarResponses):
         self.nHosts = numberOfHosts
         self.similarResp = similarResponses/100
@@ -53,6 +54,11 @@ class Discovery:
                 except TimeoutException:
                     ips.append("0.0.0.0")
                     continue
+
+                # No answer in return packet
+                except TypeError:
+                    break
+
             # Save the most frequent ip for every DNS server
             mostFreqElement = max(set(ips), key=ips.count)
             maxIP.append([mostFreqElement, ips.count(mostFreqElement)])
@@ -69,7 +75,7 @@ class Discovery:
 
         if maxFreq/len(dns) > self.similarResp :
             return piIP
-        else :
+        else:
             return None
 
     

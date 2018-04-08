@@ -1,5 +1,6 @@
 from scapy.all import *
 from dns import Dns
+from arp import Arp
 from discovery import Discovery
 from configuration import *
 
@@ -14,26 +15,29 @@ mainText = "Enter the number of the method you want to use:\n\
 conf = Configuration()
 disc = Discovery(conf.getNumberOfHosts(), conf.getSimilarResponses())
 dns = None
+arp = Arp()
 PiIP = ""
 ARPresult = True
+
 
 def mainCLI():
     while True:
         inp = input(mainText)
-        if inp.lower().strip() == "1": # Discovery
+        if inp.lower().strip() == "1":  # Discovery
             discoveryCLI()
-        elif inp.lower().strip() == "2": # ARP Poisoning
+        elif inp.lower().strip() == "2":  # ARP Poisoning
             ARPCLI()
-        elif inp.lower().strip() == "3": # DNS Poisoning
+        elif inp.lower().strip() == "3":  # DNS Poisoning
             DNSCLI()
-        elif inp.lower().strip() == "4": # Set-up automatic attack
+        elif inp.lower().strip() == "4":  # Set-up automatic attack
             automaticCLI()
-        elif inp.lower().strip() == "5": # Change settings
+        elif inp.lower().strip() == "5":  # Change settings
             settingsCLI()
-        elif inp.lower().strip() == "6": # Exit
+        elif inp.lower().strip() == "6":  # Exit
             return
-        else: # Error
+        else:  # Error
             print("Please only enter a number 1-6\n")
+
 
 # =========================== Discovery ==============================
 
@@ -44,7 +48,7 @@ def discoveryCLI():
     print("   NumberOfHosts:    {}".format(conf.getNumberOfHosts()))
     print("   DNSServer:        {}".format(conf.getDNSsetting()))
     inp = input("Do you want to continue? (Y/n): ")
-    
+
     if inp.lower().strip() == "y" or inp.lower().strip() == "yes" or len(inp.strip()) == 0:
         print("\n")
         PiIP = disc.getPi(conf.getDNSQueryTimeout(), conf.getDNSsetting())
@@ -60,20 +64,45 @@ def discoveryCLI():
         discoveryCLI()
         return
 
+
 # ================================= ARP ====================================
 
 def ARPCLI():
-    if PiIP == "" or PiIP == None:
+    # PiIP = '192.168.0.10'
+    if PiIP == "" or PiIP is None:
         print("IP of the Pi-hole was not set, please run Discovery first.")
         return
     print("You are about to initiate ARP poisoning with settings: ")
+    setting = '{}'.format(conf.getARPtarget())
+    if len(setting) == 2:
+        print("   ARPtargets: " + conf.getDNSsetting())
+    else:
+        print("   ARPtargets: " + setting)
+
+    print("   ARPdelay:  {} sec".format(conf.getARPdelay()))
+
     inp = input("Do you want to continue? (Y/n): ")
 
+    # TODO: launch ARP poisoning in a thread every getARPdelay() seconds
     if inp.lower().strip() == "y" or inp.lower().strip() == "yes" or len(inp.strip()) == 0:
-        print("\n")
-        # Call ARP method
-        if not ARPresult == True:
+
+        # ARP poisoning
+
+        # If target is all hosts on DNS server's subnet
+        if len(setting) == 2:
+            print("Performing poisoning on " + conf.getDNSsetting())
+            if arp.poison_all(conf.getDNSsetting(), PiIP, arp.get_dns_mac(PiIP)):
+                ARPresult = True
+
+        # Otherwise
+        else:
+            print("Performing poisoning on " + conf.getARPtarget())
+            if arp.poison_all(conf.getARPtarget(), PiIP, arp.get_dns_mac(PiIP)):
+                ARPresult = True
+
+        if ARPresult:
             print("Pi-hole was successfully poisoned")
+            return
         else:
             print("Poisoning was not successful. Please try again.")
             return
@@ -83,6 +112,7 @@ def ARPCLI():
         print("Invalid answer, please answer Y or N\n")
         ARPCLI()
         return
+
 
 # ================================= DNS ===================================
 
@@ -113,6 +143,7 @@ def DNSCLI():
         DNSCLI()
         return
 
+
 # ============================== Automatic ===================================
 
 def automaticCLI():
@@ -132,8 +163,9 @@ To change the settings, rerun this and reboot. To stop AdBleed if it runs in the
         automaticCLI()
         return
 
+
 # =============================== Settings ==============================
-          
+
 def settingsCLI():
     print("The settings are currently set as follows:")
     print("1    Discovery: DnsQueryTimeout  ({} ms)".format(conf.getDNSQueryTimeout()))
@@ -142,9 +174,10 @@ def settingsCLI():
     print("4    Discovery: DNSServer        ({})".format(conf.getDNSsetting()))
     print("5    Poisoning: PoisonType       ({})".format(conf.getPoisonType()))
     print("6    Poisoning: ReplaceIP        ({})".format(conf.getReplaceIP()))
-    inp = input("\nPlease refer to AdBleed.conf for explanation of the variables. To change a value, enter its number: ")
+    inp = input(
+        "\nPlease refer to AdBleed.conf for explanation of the variables. To change a value, enter its number: ")
     var = int(inp)
-    if not( int(inp) > 0 and int(inp) < 6):
+    if not (int(inp) > 0 and int(inp) < 6):
         print("No valid input, returning to main menu")
         return
     else:
