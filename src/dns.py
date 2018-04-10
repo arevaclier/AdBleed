@@ -25,24 +25,29 @@ class Dns:
         try:
             signal.alarm(timeout)
             # Construct Berkeley Packet filter
-            filter = "ip src " + self.piIP + " or ip dst " + self.piIP + " and udp src port 53"
+#            filter = "ip host " + self.piIP + " and port 53"
+            filter = "ip host 192.168.1.117"
             sniff(filter=filter, prn=self.responder)
         except TimeoutException:
             return
 
     # Changes the DNS request if necessary and forwards it
-    def responder(pkt):
+    def responder(self, pkt):
+        print("pkt with (src,dst)" + pkt[IP].src + "  " + pkt[IP].dst)
         # Forward requests to the dns server
-        if pkt[IP].dst == piIP:
+        if pkt[IP].dst == self.piIP:
             send(pkt)
-        if pkt[IP].src != piIP:
             return
+        if pkt[IP].src != self.piIP:
+            return
+        print("pt = " + self.poisonType)
+        print("v = " + str(self.verbose))
         if DNS in pkt and (pkt[DNS].opcode != 0 or pkt[DNS].ancount != 0):
             return
         # Check if we should change the packet
         # Other changing behaviour should be implemented here
-        if (self.poisonType == "ads" and pkt[DNS].rdata == piIP) or self.poisonType == "complete":
-            if verbose:
+        if (self.poisonType == "ads" and pkt[DNS].rdata == self.piIP) or self.poisonType == "complete":
+            if self.verbose:
                 print("Changed response for {} into resulting IP {}".format(pkt[DNS][DNSRR].rrname, resultIP))
             # Change the packet
             pkt[DNS].rdata = getIP(self.resultIP)

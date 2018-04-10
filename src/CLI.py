@@ -86,7 +86,6 @@ class CLI:
 
     def ARPCLI(self):
         if self.thread is None:
-            self.PiIP = '192.168.0.10'
             if self.PiIP == "" or self.PiIP is None:
                 print("IP of the Pi-hole was not set, please run Discovery first.")
                 return
