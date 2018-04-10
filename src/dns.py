@@ -25,7 +25,6 @@ class Dns:
         try:
             signal.alarm(timeout)
             # Construct Berkeley Packet filter
-            print("IP = " + self.piIP)
             filter = "ip src " + self.piIP + " or ip dst " + self.piIP + " and udp src port 53"
             sniff(filter=filter, prn=self.responder)
         except TimeoutException:
@@ -48,7 +47,7 @@ class Dns:
             # Change the packet
             pkt[DNS].rdata = getIP(self.resultIP)
         # Always forward the (possibly changed) answer
-        sen	d(pkt)
+        send(pkt)
         return
 
     def getIP(IP):
