@@ -25,8 +25,9 @@ class Dns:
         try:
             signal.alarm(timeout)
             # Construct Berkeley Packet filter
+            print("IP = " + self.piIP)
             filter = "ip src " + self.piIP + " and udp src port 53"
-            sniff(filter=filter, prn=Dns.responder)
+            sniff(filter=filter, prn=self.responder)
         except TimeoutException:
             return
 
