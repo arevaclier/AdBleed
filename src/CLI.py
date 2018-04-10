@@ -20,6 +20,7 @@ class CLI:
     arp = Arp()
     PiIP = ""
     ARPresult = False
+    thread = None
 
 
     def mainCLI(self):
@@ -37,6 +38,8 @@ class CLI:
     #        elif inp.lower().strip() == "5":  # Change settings
     #            self.settingsCLI()
             elif inp.lower().strip() == "5":  # Exit
+                if self.thread is not None:
+                    self.thread.stop()
                 sys.exit()
             else:  # Error
                 print("Please only enter a number 1-6\n")
@@ -69,15 +72,17 @@ class CLI:
 
 
     # ================================= ARP ====================================
-    def ARPPoisoning(setting):
+
+    # For multi-threading
+    def ARPPoisoning(self, setting):
         if len(setting) == 2:
-            self.arp.poison_all(self.conf.getDNSsetting(), self.PiIP, arp.get_dns_mac(PiIP), False)
-            print("Thread")
+            self.arp.poison_all(self.conf.getDNSsetting(), self.PiIP, self.arp.get_dns_mac(self.PiIP), False)
         else:
-            self.arp.poison_all(self.conf.getARPtarget(), self.PiIP, arp.get_dns_mac(PiIP), False)
+            self.arp.poison_all(self.conf.getARPtarget(), self.PiIP, self.arp.get_dns_mac(self.PiIP), False)
+
 
     def ARPCLI(self):
-        #PiIP = '192.168.0.10'
+        self.PiIP = '192.168.0.10'
         if self.PiIP == "" or self.PiIP is None:
             print("IP of the Pi-hole was not set, please run Discovery first.")
             return
@@ -99,20 +104,20 @@ class CLI:
             # If target is all hosts on DNS server's subnet
             if len(setting) == 2:
                 print("Performing poisoning on " + self.conf.getDNSsetting())
-                if self.arp.poison_all(self.conf.getDNSsetting(), self.PiIP, self.arp.get_dns_mac(PiIP), True):
+                if self.arp.poison_all(self.conf.getDNSsetting(), self.PiIP, self.arp.get_dns_mac(self.PiIP), True):
                     self.ARPresult = True
 
             # Otherwise
             else:
                 print("Performing poisoning on " + self.conf.getARPtarget())
-                if self.arp.poison_all(self.conf.getARPtarget(), self.PiIP, self.arp.get_dns_mac(PiIP), True):
+                if self.arp.poison_all(self.conf.getARPtarget(), self.PiIP, self.arp.get_dns_mac(self.PiIP), True):
                     self.ARPresult = True
 
-            if ARPresult:
+            if self.ARPresult:
                 print("Pi-hole was successfully poisoned")
                 # ARP poisoning, threading
-                thread = RepeatedTimer(self.conf.getARPdelay(), ARPPoisoning, setting)
-                #thread.start()
+                self.thread = RepeatedTimer(self.conf.getARPdelay(), self.ARPPoisoning, setting)
+                self.thread.start()
                 # TODO: Find a way to stop the thread when leaving app
                 return
             else:
