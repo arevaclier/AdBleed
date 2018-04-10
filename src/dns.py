@@ -26,14 +26,17 @@ class Dns:
             signal.alarm(timeout)
             # Construct Berkeley Packet filter
             print("IP = " + self.piIP)
-            filter = "ip src " + self.piIP + " and udp src port 53"
+            filter = "ip src " + self.piIP + " or ip dst " + self.piIP + " and udp src port 53"
             sniff(filter=filter, prn=self.responder)
         except TimeoutException:
             return
 
     # Changes the DNS request if necessary and forwards it
     def responder(pkt):
-        if pkt[IP].src != piIP :
+        # Forward requests to the dns server
+        if pkt[IP].dst == piIP:
+            send(pkt)
+        if pkt[IP].src != piIP:
             return
         if DNS in pkt and (pkt[DNS].opcode != 0 or pkt[DNS].ancount != 0):
             return
@@ -45,7 +48,7 @@ class Dns:
             # Change the packet
             pkt[DNS].rdata = getIP(self.resultIP)
         # Always forward the (possibly changed) answer
-        send(pkt)
+        sen	d(pkt)
         return
 
     def getIP(IP):

