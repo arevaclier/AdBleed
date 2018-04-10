@@ -1,7 +1,7 @@
 # AdBleed
 
 ## Description
-AdBleed is an attack for a [Pi-hole](https://github.com/pi-hole/pi-hole). It can detect a Pi-hole on the network and automatically replace DNS requests sent back from the Pi-hole. This project uses Python 3 and [Scapy for Python 3](https://github.com/phaethon/scapy) to implement the network interaction.
+AdBleed is an attack for a [Pi-hole](https://github.com/pi-hole/pi-hole). It can detect a Pi-hole on the network and automatically replace DNS requests sent back from the Pi-hole. This project uses Python 3, [Scapy for Python 3](https://github.com/phaethon/scapy) and [python-nmap](https://pypi.python.org/pypi/python-nmap) to implement the network interaction.
 
 AdBleed is intended to run on a Raspberry Pi (but will likely also work on other Linux machines). Together with the [automation](#automate), this makes a small device that can be plugged in independently to interfere with the Pi-hole.
 
@@ -33,7 +33,7 @@ This will try to obtain the IP address of the Pi-hole in the network. Depending 
 If a set percentage of responses is the IP address of the DNS server, AdBleed classifies the DNS server as possible Pi-hole. This mechanism is used because a Pi-hole will always return its own IP address if it is queried with a advertisement server. Finally the server with the most equal DNS responses is selected.
 
 ### ARP Poisoning
-To Do
+ARP poisoning can run in several different ways. Two settings are available to customize it
 
 ### DNS Poisoning
 DNS poisoning of the Pi-hole has several types. It can alter all DNS responses or only the responses for requests of ad servers. Furthermore, the user can choose to replace the IP addresses in the DNS responses with a fixed IP address, its own IP address or a random IP address.

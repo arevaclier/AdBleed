@@ -7,12 +7,6 @@ from configuration import *
 from RepeatedTimer import RepeatedTimer
 
 class CLI:
-    mainText = "Enter the number of the method you want to use:\n\
-        1. Pi-hole discovery\n\
-        2. ARP Poisoning\n\
-        3. DNS Poisoning\n\
-        4. Set-up automatic attack\n\
-        5. Exit\n"
 
     conf = Configuration()
     disc = Discovery(conf.getNumberOfHosts(), conf.getSimilarResponses())
@@ -21,6 +15,15 @@ class CLI:
     PiIP = ""
     ARPresult = False
     thread = None
+
+    mainText = "Enter the number of the method you want to use:\n\
+        1. Pi-hole discovery\n\
+        2. ARP Poisoning\n\
+        3. DNS Poisoning\n\
+        4. Set-up automatic attack\n\
+        5. Exit\n"
+
+
 
 
     def mainCLI(self):
@@ -82,54 +85,84 @@ class CLI:
 
 
     def ARPCLI(self):
-        self.PiIP = '192.168.0.10'
-        if self.PiIP == "" or self.PiIP is None:
-            print("IP of the Pi-hole was not set, please run Discovery first.")
-            return
-        print("You are about to initiate ARP poisoning with settings: ")
-        setting = '{}'.format(self.conf.getARPtarget())
-        if len(setting) == 2:
-            print("   ARPtargets: " + self.conf.getDNSsetting())
-        else:
-            print("   ARPtargets: " + setting)
-
-        print("   ARPdelay:  {} sec".format(self.conf.getARPdelay()))
-
-        inp = input("Do you want to continue? (Y/n): ")
-
-        if inp.lower().strip() == "y" or inp.lower().strip() == "yes" or len(inp.strip()) == 0:
-
-            # ARP poisoning, initial call
-
-            # If target is all hosts on DNS server's subnet
+        if self.thread is None:
+            self.PiIP = '192.168.0.10'
+            if self.PiIP == "" or self.PiIP is None:
+                print("IP of the Pi-hole was not set, please run Discovery first.")
+                return
+            print("You are about to initiate ARP poisoning with settings: ")
+            setting = '{}'.format(self.conf.getARPtarget())
             if len(setting) == 2:
-                print("Performing poisoning on " + self.conf.getDNSsetting())
-                if self.arp.poison_all(self.conf.getDNSsetting(), self.PiIP, self.arp.get_dns_mac(self.PiIP), True):
-                    self.ARPresult = True
-
-            # Otherwise
+                print("   ARPtargets: " + self.conf.getDNSsetting())
             else:
-                print("Performing poisoning on " + self.conf.getARPtarget())
-                if self.arp.poison_all(self.conf.getARPtarget(), self.PiIP, self.arp.get_dns_mac(self.PiIP), True):
-                    self.ARPresult = True
+                print("   ARPtargets: " + setting)
 
-            if self.ARPresult:
-                print("Pi-hole was successfully poisoned")
-                # ARP poisoning, threading
-                self.thread = RepeatedTimer(self.conf.getARPdelay(), self.ARPPoisoning, setting)
-                self.thread.start()
-                # TODO: Find a way to stop the thread when leaving app
+            print("   ARPdelay:  {} sec".format(self.conf.getARPdelay()))
+
+            inp = input("Do you want to continue? (Y/n): ")
+
+            if inp.lower().strip() == "y" or inp.lower().strip() == "yes" or len(inp.strip()) == 0:
+
+                # ARP poisoning, initial call
+
+                # If target is all hosts on DNS server's subnet
+                if len(setting) == 2:
+                    print("Performing poisoning on " + self.conf.getDNSsetting())
+                    if self.arp.poison_all(self.conf.getDNSsetting(), self.PiIP, self.arp.get_dns_mac(self.PiIP), True):
+                        self.ARPresult = True
+
+                # Otherwise
+                else:
+                    print("Performing poisoning on " + self.conf.getARPtarget())
+                    if self.arp.poison_all(self.conf.getARPtarget(), self.PiIP, self.arp.get_dns_mac(self.PiIP), True):
+                        self.ARPresult = True
+
+                if self.ARPresult:
+                    print("Pi-hole was successfully poisoned")
+                    # ARP poisoning, threading
+                    self.thread = RepeatedTimer(self.conf.getARPdelay(), self.ARPPoisoning, setting)
+                    self.thread.start()
+
+                    self.mainText = "Enter the number of the method you want to use:\n\
+                            1. Pi-hole discovery\n\
+                            2. Stop ARP Poisoning\n\
+                            3. DNS Poisoning\n\
+                            4. Set-up automatic attack\n\
+                            5. Exit\n"
+                    return
+                else:
+                    print("Poisoning was not successful. Please try again.")
+                    return
+            elif inp.lower().strip() == "n" or inp.lower().strip() == "no":
                 return
             else:
-                print("Poisoning was not successful. Please try again.")
+                print("Invalid answer, please answer Y or N\n")
+                self.ARPCLI()
                 return
-        elif inp.lower().strip() == "n" or inp.lower().strip() == "no":
-            return
+
+        # ARP Poisoning already running
         else:
-            print("Invalid answer, please answer Y or N\n")
-            self.ARPCLI()
-            return
-
+            inp = input("You are about to stop the ARP poisoning, are you sure? (Y/N)")
+            if inp.lower().strip() == "y" or inp.lower().strip() == "yes" or len(inp.strip()) == 0:
+                # Stop thread and restore ARP tables
+                self.thread.stop()
+                self.arp.restore_all(self.conf.getARPtarget(), self.PiIP, self.arp.get_dns_mac(self.PiIP))
+                self.thread = None
+                print("ARP poisoning successfully stopped.")
+                self.mainText = "Enter the number of the method you want to use:\n\
+                        1. Pi-hole discovery\n\
+                        2. ARP Poisoning\n\
+                        3. DNS Poisoning\n\
+                        4. Set-up automatic attack\n\
+                        5. Exit\n"
+                return
+            elif inp.lower().strip() == "n" or inp.lower().strip() == "no":
+                print("Cancelling...")
+                return
+            else:
+                print("Invalid answer, please answer Y or N\n")
+                self.ARPCLI()
+                return
 
     # ================================= DNS ===================================
 
