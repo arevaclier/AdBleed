@@ -20,8 +20,7 @@ class CLI:
         1. Pi-hole discovery\n\
         2. ARP Poisoning\n\
         3. DNS Poisoning\n\
-        4. Set-up automatic attack\n\
-        5. Exit\n"
+        4. Exit\n"
 
 
 
@@ -35,19 +34,14 @@ class CLI:
                 self.ARPCLI()
             elif inp.lower().strip() == "3":  # DNS Poisoning
                 self.DNSCLI()
-            elif inp.lower().strip() == "4":  # Set-up automatic attack
-                self.automaticCLI()
-    # Remove the option to change settings in CLI, see issue #2
-    #        elif inp.lower().strip() == "5":  # Change settings
-    #            self.settingsCLI()
-            elif inp.lower().strip() == "5":  # Exit
+            elif inp.lower().strip() == "4":  # Exit
                 print("Quitting...")
                 if self.thread is not None:
                     print("   Stopping ARP poisoning")
                     self.thread.stop()
                 sys.exit()
             else:  # Error
-                print("Please only enter a number 1-5\n")
+                print("Please only enter a number 1-4\n")
 
 
     # =========================== Discovery ==============================
@@ -129,8 +123,7 @@ class CLI:
                             1. Pi-hole discovery\n\
                             2. Stop ARP Poisoning\n\
                             3. DNS Poisoning\n\
-                            4. Set-up automatic attack\n\
-                            5. Exit\n"
+                            4. Exit\n"
                     return
                 else:
                     print("Poisoning was not successful. Please try again.")
@@ -155,8 +148,7 @@ class CLI:
                         1. Pi-hole discovery\n\
                         2. ARP Poisoning\n\
                         3. DNS Poisoning\n\
-                        4. Set-up automatic attack\n\
-                        5. Exit\n"
+                        4. Exit\n"
                 return
             elif inp.lower().strip() == "n" or inp.lower().strip() == "no":
                 print("Cancelling...")
@@ -194,57 +186,3 @@ class CLI:
             print("Invalid answer, please answer Y or N\n")
             self.DNSCLI()
             return
-
-
-    # ============================== Automatic ===================================
-
-    def automaticCLI(self):
-        print("You are about to install AdBleed automatic mode for the next reboot.\n\
-    This will automatically run the discovery, ARP poisoning and DNS poisoning with the settings in AdBleed.conf.")
-        inp = input("Do you want to continue? (Y/n): ")
-        if inp.lower().strip() == "y" or inp.lower().strip() == "yes" or len(inp.strip()) == 0:
-            print("Installing...")
-            # Execute commands to install service
-            print("Done. AdBleed will be started automatically in the background next boot time.\n\
-    To change the settings, rerun this and reboot. To stop AdBleed if it runs in the background:\n\
-        sudo service AdBleed stop\n")
-        elif inp.lower().strip() == "n" or inp.lower().strip() == "no":
-            return
-        else:
-            print("Invalid answer, please answer Y or N\n")
-            self.automaticCLI()
-            return
-
-
-    # =============================== Settings ==============================
-
-    def settingsCLI(self):
-        print("The settings are currently set as follows:")
-        print("1    Discovery: DnsQueryTimeout  ({} ms)".format(self.conf.getDNSQueryTimeout()))
-        print("2    Discovery: SimilarResp      ({}%)".format(self.conf.getSimilarResponses()))
-        print("3    Discovery: NumberOfHosts    ({})".format(self.conf.getNumberOfHosts()))
-        print("4    Discovery: DNSServer        ({})".format(self.conf.getDNSsetting()))
-        print("5    Poisoning: PoisonType       ({})".format(self.conf.getPoisonType()))
-        print("6    Poisoning: ReplaceIP        ({})".format(self.conf.getReplaceIP()))
-        inp = input(
-            "\nPlease refer to AdBleed.conf for explanation of the variables. To change a value, enter its number: ")
-        var = int(inp)
-        if not (int(inp) > 0 and int(inp) < 6):
-            print("No valid input, returning to main menu")
-            return
-        else:
-            val = input("To what value do you want to change this value: ")
-            if var == 1:
-                self.conf.setDNSQueryTimeout(val)
-            elif var == 2:
-                self.conf.setSimilarResponses(val)
-            elif var == 3:
-                self.conf.setNumberOfHosts(val)
-            elif var == 4:
-                self.conf.setDNSsetting(val)
-            elif var == 5:
-                self.conf.setPoisonType(val)
-            elif var == 6:
-                self.conf.setReplaceIP(val)
-            print("The setting is now set to " + val + "!")
-    pass
