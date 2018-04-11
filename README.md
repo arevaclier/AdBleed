@@ -5,6 +5,8 @@ AdBleed is an attack for a [Pi-hole](https://github.com/pi-hole/pi-hole). It can
 
 AdBleed is intended to run on a Raspberry Pi (but will likely also work on other Linux machines). Together with the [automation](#automate), this makes a small device that can be plugged in independently to interfere with the Pi-hole.
 
+The only requirements for AdBleed are a working instance of Python 3 and [pip](https://pypi.python.org/pypi/pip/). Other needed packages are installed with the installer.
+
 ## Table of Contents
 - [Installation](#installation)  
 - [Usage](#usage)
@@ -22,10 +24,10 @@ git clone https://github.com/arevaclier/AdBleed.git
 cd AdBleed
 sudo ./install.sh
 ```
-AdBleed does not require the repository after the installer has been run. To update, `pull` the latest version and run `sudo ./install.sh` again.
+To update, `pull` the latest version and run `sudo ./install.sh` again.
 
 ## Usage
-To start the AdBleed CLI, run `sudo python AdBleed.py`. AdBleed has several modes of operation.
+To start the AdBleed CLI, run `sudo ./AdBleed`. AdBleed has several modes of operation.
 
 ### Discovery
 This will try to obtain the IP address of the Pi-hole in the network. Depending on the setting in `AdBleed.conf`, it can use the DNS servers in `/etc/resolv.conf` or a custom range of IP addresses. If the user has selected a custom range of addresses, [nmap](https://pypi.python.org/pypi/python-nmap) will determine which hosts accept connections on port 53. In both case, all (open) addresses are queried for a number of known advertisment servers (this number can be set by the user). AdBleed has a built-in list of ad servers, but also retrieves the latest versions of some of the ad lists used by Pi-hole by default.

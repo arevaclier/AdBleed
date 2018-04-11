@@ -1,4 +1,4 @@
-import configuration
+#!/usr/bin/env python
 from CLI import CLI
 
 # Run the program
