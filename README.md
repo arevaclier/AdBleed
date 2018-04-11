@@ -1,3 +1,4 @@
+###### Note: this branch is to be used with the provided installer. It does not contain the automated attack
 # AdBleed
 
 ## Description
