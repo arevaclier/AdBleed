@@ -13,7 +13,6 @@ The only requirements for AdBleed are a working instance of Python 3 and [pip](h
   - [Discovery](#discovery)
   - [ARP Poisoning](#arp-poisoning)
   - [DNS Poisoning](#dns-poisoning)
-  - [Automate](#automate)
   - [Settings](#settings)
 - [License](#license)
 
@@ -68,9 +67,6 @@ In order, `NetworkInterface` defines which network interface AdBleed is going to
 DNS poisoning of the Pi-hole has several types. It can alter all DNS responses or only the responses for requests of ad servers. Furthermore, the user can choose to replace the IP addresses in the DNS responses with a fixed IP address, its own IP address or a random IP address.
 
 AdBleed sniffs all packets and acts on those with the previously determine IP address and source port 53. For these packets, the response IP address may be changed depending on the poisoning setting. All other packets are ignored.
-
-### Automate
-Once set up, it is possible to set up AdBleed in automatic mode. This means it is started once the machine is booted and will automatically do the steps above according to the settings.
 
 ### Settings
 AdBleed gives the user a range of settings to alter. It is possible to change the settings in the file `AdBleed.conf`  by hand. This contains formatting examples and explanations on what the settings change.
