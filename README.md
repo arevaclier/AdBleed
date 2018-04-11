@@ -13,7 +13,6 @@ The only requirements for AdBleed are a working instance of Python 3 and [pip](h
   - [Discovery](#discovery)
   - [ARP Poisoning](#arp-poisoning)
   - [DNS Poisoning](#dns-poisoning)
-  - [Automate](#automate)
   - [Settings](#settings)
 - [License](#license)
 
