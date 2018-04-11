@@ -9,7 +9,7 @@ from RepeatedTimer import RepeatedTimer
 class CLI:
 
     conf = Configuration()
-    disc = Discovery(conf.getNumberOfHosts(), conf.getSimilarResponses())
+    disc = Discovery(conf.getNumberOfHosts(), conf.getSimilarResponses(), conf.getNumberOfHosts())
     dns = None
     arp = Arp()
     PiIP = ""
@@ -52,6 +52,7 @@ class CLI:
         print("   SimilarResp:      {}%".format(self.conf.getSimilarResponses()))
         print("   NumberOfHosts:    {}".format(self.conf.getNumberOfHosts()))
         print("   DNSServer:        {}".format(self.conf.getDNSsetting()))
+        print("   HostsURL          {}".format(self.conf.getHostsURL()))
         inp = input("Do you want to continue? (Y/n): ")
 
         if inp.lower().strip() == "y" or inp.lower().strip() == "yes" or len(inp.strip()) == 0:

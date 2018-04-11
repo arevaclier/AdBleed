@@ -1,3 +1,4 @@
+requests
 scapy-python3
 ConfigParser
 python-nmap

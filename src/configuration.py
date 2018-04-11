@@ -11,6 +11,7 @@ class Configuration:
     similarResponses = ("Discovery", "SimilarResp")
     noOfHosts = ("Discovery", "NumberOfHosts")
     dnsServer = ("Discovery", "DNSServer")
+    hostsURL = ("Discovery", "HostsURL")
     poisonType = ("Poisoning", "PoisonType")
     replaceIP = ("Poisoning", "ReplaceIP")
     spoofTimeout = ("Poisoning", "SpoofingTimeout")
@@ -62,3 +63,6 @@ class Configuration:
 
     def getARPhostsRefreshDelay(self):
         return int(self.getConf(self.arpRefreshDelay[0], self.arpRefreshDelay[1]))
+
+    def getHostsURL(self):
+        return str(self.getConf(self.hostsURL[0], self.hostsURL[1]))
