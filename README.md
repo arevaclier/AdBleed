@@ -20,12 +20,12 @@ To install, pull the repository from GitHub and run the installer:
 ```
 git clone https://github.com/arevaclier/AdBleed.git
 cd AdBleed
-sudo ./install
+sudo ./install.sh
 ```
-AdBleed does not require the repository after the installer has been run. To update, `pull` the latest version and run `sudo ./install` again.
+AdBleed does not require the repository after the installer has been run. To update, `pull` the latest version and run `sudo ./install.sh` again.
 
 ## Usage
-To start the AdBleed CLI, run `sudo AdBleed`. AdBleed has several modes of operation.
+To start the AdBleed CLI, run `sudo python AdBleed.py`. AdBleed has several modes of operation.
 
 ### Discovery
 This will try to obtain the IP address of the Pi-hole in the network. Depending on the setting in `AdBleed.conf`, it can use the DNS servers in `/etc/resolv.conf` or a custom range of IP addresses. If the user has selected a custom range of addresses, [nmap](https://pypi.python.org/pypi/python-nmap) will determine which hosts accept connections on port 53. In both case, all (open) addresses are queried for a number of known advertisment servers (this number can be set by the user). AdBleed has a built-in list of ad servers, but also retrieves the latest versions of some of the ad lists used by Pi-hole by default.
@@ -33,7 +33,34 @@ This will try to obtain the IP address of the Pi-hole in the network. Depending 
 If a set percentage of responses is the IP address of the DNS server, AdBleed classifies the DNS server as possible Pi-hole. This mechanism is used because a Pi-hole will always return its own IP address if it is queried with a advertisement server. Finally the server with the most equal DNS responses is selected.
 
 ### ARP Poisoning
-ARP poisoning can run in several different ways. Two settings are available to customize it
+ARP poisoning can run in several different ways. Some settings are available to customize it:
+```
+[General]
+# Network interface used to carry out the attacks
+NetworkInterface = enp5s0
+
+...
+
+[Poisoning]
+...
+# Define ARP poisoning targets.
+# If set to none, ARP poisoning will take place on every host in the same subnet as the DNS server
+ARPtarget = ''
+;ARPtarget = '192.168.0.1/24'  # Force targets for ARP poisoning
+
+# Time between ARP packets (in seconds)
+ARPdelay = 5
+
+# Number of arp attacks before refreshing list of alive hosts
+ARPrefreshDelay = 100
+```
+In order, `NetworkInterface` defines which network interface AdBleed is going to use to carry out ARP poisoning. It is possible to get the name of your interfaces by running the `ifconfig` command in a terminal.
+
+`ARPTarget` defines the range of IPs ARP poisoning is going to affect. If left blank, it will use the same range as the parameter `DNSServer` in section `[Discovery]`. Examples of possible values are `192.168.0.1/24`, `10.0.0.1/16`, etc.
+
+`ARPdelay` defines the elapsed time between two ARP poisoning attacks (in seconds). Since the ARP cache is regularly updated on most systems, it is necessary to carry out the attack repeatedly.
+
+`ARPrefreshDelay` defines how often the list of alive hosts is refreshed (in number of attacks). By default, the list is updated each 100 attacks.
 
 ### DNS Poisoning
 DNS poisoning of the Pi-hole has several types. It can alter all DNS responses or only the responses for requests of ad servers. Furthermore, the user can choose to replace the IP addresses in the DNS responses with a fixed IP address, its own IP address or a random IP address.

@@ -41,11 +41,13 @@ class CLI:
     #        elif inp.lower().strip() == "5":  # Change settings
     #            self.settingsCLI()
             elif inp.lower().strip() == "5":  # Exit
+                print("Quitting...")
                 if self.thread is not None:
+                    print("   Stopping ARP poisoning")
                     self.thread.stop()
                 sys.exit()
             else:  # Error
-                print("Please only enter a number 1-6\n")
+                print("Please only enter a number 1-5\n")
 
 
     # =========================== Discovery ==============================
@@ -79,9 +81,9 @@ class CLI:
     # For multi-threading
     def ARPPoisoning(self, setting):
         if len(setting) == 2:
-            self.arp.poison_all(self.conf.getDNSsetting(), self.PiIP, self.arp.get_dns_mac(self.PiIP), False)
+            self.arp.poison_all(self.conf.getDNSsetting(), self.PiIP, self.arp.get_dns_mac(self.PiIP))
         else:
-            self.arp.poison_all(self.conf.getARPtarget(), self.PiIP, self.arp.get_dns_mac(self.PiIP), False)
+            self.arp.poison_all(self.conf.getARPtarget(), self.PiIP, self.arp.get_dns_mac(self.PiIP))
 
 
     def ARPCLI(self):
@@ -90,6 +92,7 @@ class CLI:
                 print("IP of the Pi-hole was not set, please run Discovery first.")
                 return
             print("You are about to initiate ARP poisoning with settings: ")
+            print("   NetworkInterface: " + self.conf.getNetworkInterface())
             setting = '{}'.format(self.conf.getARPtarget())
             if len(setting) == 2:
                 print("   ARPtargets: " + self.conf.getDNSsetting())
@@ -107,13 +110,13 @@ class CLI:
                 # If target is all hosts on DNS server's subnet
                 if len(setting) == 2:
                     print("Performing poisoning on " + self.conf.getDNSsetting())
-                    if self.arp.poison_all(self.conf.getDNSsetting(), self.PiIP, self.arp.get_dns_mac(self.PiIP), True):
+                    if self.arp.poison_all(self.conf.getDNSsetting(), self.PiIP, self.arp.get_dns_mac(self.PiIP)):
                         self.ARPresult = True
 
                 # Otherwise
                 else:
                     print("Performing poisoning on " + self.conf.getARPtarget())
-                    if self.arp.poison_all(self.conf.getARPtarget(), self.PiIP, self.arp.get_dns_mac(self.PiIP), True):
+                    if self.arp.poison_all(self.conf.getARPtarget(), self.PiIP, self.arp.get_dns_mac(self.PiIP)):
                         self.ARPresult = True
 
                 if self.ARPresult:

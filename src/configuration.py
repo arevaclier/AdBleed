@@ -5,6 +5,7 @@ class Configuration:
     config = None
     path = None
 
+    networkInterface = ("General", "networkInterface")
     dnsQueryTimeout = ("Discovery", "DnsQueryTimeout")
     similarResponses = ("Discovery", "SimilarResp")
     noOfHosts = ("Discovery", "NumberOfHosts")
@@ -14,6 +15,7 @@ class Configuration:
     spoofTimeout = ("Poisoning", "SpoofingTimeout")
     arpTargets = ("Poisoning", "ARPtarget")
     arpDelay = ("Poisoning", "ARPdelay")
+    arpRefreshDelay = ("Poisoning", "ARPrefreshDelay")
 
     def __init__(self):
         self.path = os.path.dirname(__file__) + "/../AdBleed.conf"
@@ -31,6 +33,10 @@ class Configuration:
     # |------------------|
     # | Specific get/set |
     # |------------------|
+
+    def getNetworkInterface(self):
+        return self.getConf(self.networkInterface[0], self.networkInterface[1])
+
     def setDNSQueryTimeout(self, value):
         self.setConf(self.dnsQueryTimeout[0], self.dnsQueryTimeout[1], str.encode(value))
 
@@ -78,4 +84,7 @@ class Configuration:
 
     def getARPdelay(self):
         return float(self.getConf(self.arpDelay[0], self.arpDelay[1]))
+
+    def getARPhostsRefreshDelay(self):
+        return int(self.getConf(self.arpRefreshDelay[0], self.arpRefreshDelay[1]))
 
