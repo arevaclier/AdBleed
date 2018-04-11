@@ -18,7 +18,7 @@ class Configuration:
     arpRefreshDelay = ("Poisoning", "ARPrefreshDelay")
 
     def __init__(self):
-        self.path = os.path.dirname(__file__) + "/../AdBleed.conf"
+        self.path = os.path.dirname(__file__) + "AdBleed.conf"
         self.config = configparser.ConfigParser()
         self.config.read(self.path)
 
