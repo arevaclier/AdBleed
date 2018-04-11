@@ -16,6 +16,8 @@ class Discovery:
         self.similarResp = similarResponses/100
         
         # Open host file
+        # Comment first path and uncomment second if not using install.sh!
+        fileName = os.path.dirname(__file__) + "/hosts.txt"
         fileName = os.path.dirname(__file__) + "/../hosts.txt"
         # Strip comments from the file and store result in __hosts separated by \n
         cleanHosts = ""
