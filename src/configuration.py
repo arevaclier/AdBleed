@@ -1,7 +1,6 @@
 import configparser
 import os
 
-
 class Configuration:
     config = None
     path = None

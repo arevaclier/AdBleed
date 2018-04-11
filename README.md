@@ -69,9 +69,6 @@ DNS poisoning of the Pi-hole has several types. It can alter all DNS responses o
 
 AdBleed sniffs all packets and acts on those with the previously determine IP address and source port 53. For these packets, the response IP address may be changed depending on the poisoning setting. All other packets are ignored.
 
-### Automate
-Once set up, it is possible to set up AdBleed in automatic mode. This means it is started once the machine is booted and will automatically do the steps above according to the settings.
-
 ### Settings
 AdBleed gives the user a range of settings to alter. It is possible to change the settings in the file `AdBleed.conf`  by hand. This contains formatting examples and explanations on what the settings change.
 

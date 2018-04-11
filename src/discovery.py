@@ -1,11 +1,8 @@
 import os
-
-import requests
 from scapy.all import *
 import signal
 from TimeoutException import TimeoutException
 import nmap
-
 
 class Discovery:
     'Discovery class handles automatic discovery of Pi-hole.'
@@ -87,6 +84,7 @@ class Discovery:
         else:
             return None
 
+    
     # Returns list of DNS servers from /etc/resolv.conf
     def getDNS(self, DNSsetting):
         servers = []
