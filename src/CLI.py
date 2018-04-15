@@ -174,12 +174,12 @@ class CLI:
             # Ask if we should run in verbose mode
             verbose = input("Do you want to run in verbose mode? (Y/n): ")
             if verbose.lower().strip() == "y" or verbose.lower().strip() == "yes" or len(verbose.strip()) == 0:
-                self.dns = Dns(self.PiIP, self.conf.getReplaceIP(), self.conf.getPoisonType(), True)
+                self.dns = Dns(self.PiIP, self.conf.getReplaceIP(), self.conf.getPoisonType(), self.conf.getNetworkInterface(), True)
             else:
-                self.dns = Dns(self.PiIP, self.conf.getReplaceIP(), self.conf.getPoisonType(), False)
+                self.dns = Dns(self.PiIP, self.conf.getReplaceIP(), self.conf.getPoisonType(), self.conf.getNetworkInterface(), False)
             print("\n")
             # Start spoofing
-            self.dns.spoofer(self.conf.getSpoofingTimeout())
+            self.dns.poison()
         elif inp.lower().strip() == "n" or inp.lower().strip() == "no":
             return
         else:
