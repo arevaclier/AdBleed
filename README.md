@@ -30,6 +30,11 @@ If an attacker can recognize the blocked ads and is able to redirect this traffi
 - [License](#license)
  
 ## Installation
+First make sure that Python 3 and pip are installed:
+```
+sudo apt-get install python3 python3-pip
+
+```
 To install, pull the repository from GitHub and run the installer:
 ```
 git clone https://github.com/arevaclier/AdBleed.git

@@ -70,7 +70,7 @@ class Discovery:
 
             # Save the most frequent ip for every DNS server
             mostFreqElement = max(set(ips), key=ips.count)
-            maxIP.append([mostFreqElement, ips.count(mostFreqElement)])
+            maxIP.append([server, mostFreqElement, ips.count(mostFreqElement)])
             ips = []
         print("Done")
 
@@ -78,9 +78,9 @@ class Discovery:
         maxFreq = 0
         piIP = None
         for ip in maxIP:
-            if maxFreq < ip[1] and ip[0] != "0.0.0.0":
+            if maxFreq < ip[2] and ip[1] != "0.0.0.0":
                 piIP = ip[0]
-                maxFreq = ip[1]
+                maxFreq = ip[2]
 
         if maxFreq / len(dns) > self.similarResp:
             return piIP
